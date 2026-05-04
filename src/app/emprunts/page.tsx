@@ -3,11 +3,14 @@
 import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { api, type Loan, getJson } from "@/lib/api";
+import { SearchableSelect } from "@/components/searchable-select";
+import { api, type Book, type Borrower, type Loan, getJson } from "@/lib/api";
 import { inputClass, panelClass } from "@/lib/ui";
 
 export default function EmpruntsPage() {
   const [items, setItems] = useState<Loan[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
+  const [borrowers, setBorrowers] = useState<Borrower[]>([]);
   const [form, setForm] = useState({
     bookId: "",
     borrowerId: "",
@@ -22,7 +25,13 @@ export default function EmpruntsPage() {
 
   const refresh = async () => {
     setLoading(true);
-    const loans = await getJson<Loan[]>("/api/loans");
+    const [loans, bks, brs] = await Promise.all([
+      getJson<Loan[]>("/api/loans"),
+      getJson<Book[]>("/api/books"),
+      getJson<Borrower[]>("/api/borrowers"),
+    ]);
+    setBooks(bks);
+    setBorrowers(brs);
     setItems(
       loans.map((x) => ({
         ...x,
@@ -39,6 +48,9 @@ export default function EmpruntsPage() {
 
   const onCreate = async (e: FormEvent) => {
     e.preventDefault();
+    if (!form.bookId || !form.borrowerId) {
+      return toast.error("Selectionne un livre et un emprunteur.");
+    }
     setSaving(true);
     const res = await fetch(`${api}/api/loans`, {
       method: "POST",
@@ -73,13 +85,52 @@ export default function EmpruntsPage() {
       <section className={panelClass}>
         <h1 className="text-2xl font-bold">Gestion des emprunts</h1>
         <form className="mt-4 grid gap-2 md:grid-cols-4" onSubmit={onCreate}>
-          <input className={inputClass} placeholder="ID Livre" value={form.bookId} onChange={(e) => setForm({ ...form, bookId: e.target.value })} required />
-          <input className={inputClass} placeholder="ID Emprunteur" value={form.borrowerId} onChange={(e) => setForm({ ...form, borrowerId: e.target.value })} required />
-          <input className={inputClass} type="date" value={form.borrowedAt} onChange={(e) => setForm({ ...form, borrowedAt: e.target.value })} />
-          <input className={inputClass} type="date" value={form.dueAt} onChange={(e) => setForm({ ...form, dueAt: e.target.value })} />
-          <input className={inputClass} type="date" value={form.returnedAt} onChange={(e) => setForm({ ...form, returnedAt: e.target.value })} />
-          <input className={inputClass} placeholder="Statut" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} />
-          <input className={inputClass} placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+          <div className="space-y-1">
+            <label className="text-xs text-slate-600">Livre</label>
+            <SearchableSelect
+              value={form.bookId}
+              onChange={(value) => setForm({ ...form, bookId: value })}
+              placeholder="Selectionner un livre"
+              searchPlaceholder="Rechercher un livre..."
+              options={books.map((book) => ({
+                value: book.id,
+                label: `${book.title} (${book.id})`,
+              }))}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs text-slate-600">Emprunteur</label>
+            <SearchableSelect
+              value={form.borrowerId}
+              onChange={(value) => setForm({ ...form, borrowerId: value })}
+              placeholder="Selectionner un emprunteur"
+              searchPlaceholder="Rechercher un emprunteur..."
+              options={borrowers.map((b) => ({
+                value: b.id,
+                label: `${b.fullName} (${b.id})`,
+              }))}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs text-slate-600">Date d&apos;emprunt</label>
+            <input className={inputClass} type="date" value={form.borrowedAt} onChange={(e) => setForm({ ...form, borrowedAt: e.target.value })} />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs text-slate-600">Date retour prevue</label>
+            <input className={inputClass} type="date" value={form.dueAt} onChange={(e) => setForm({ ...form, dueAt: e.target.value })} />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs text-slate-600">Date retour effective</label>
+            <input className={inputClass} type="date" value={form.returnedAt} onChange={(e) => setForm({ ...form, returnedAt: e.target.value })} />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs text-slate-600">Statut</label>
+            <input className={inputClass} placeholder="En cours / En retard / Retourne..." value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs text-slate-600">Notes</label>
+            <input className={inputClass} placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+          </div>
           <Button type="submit" disabled={saving}>{saving ? "En cours..." : "Ajouter"}</Button>
         </form>
       </section>

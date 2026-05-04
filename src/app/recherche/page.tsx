@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
+import { SearchableSelect } from "@/components/searchable-select";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
@@ -17,6 +18,7 @@ const columns: ColumnDef<Book>[] = [
 
 export default function RecherchePage() {
   const [catalog, setCatalog] = useState<Book[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState({
     keyword: "",
@@ -38,6 +40,7 @@ export default function RecherchePage() {
   };
 
   useEffect(() => {
+    getJson<Book[]>("/api/books").then(setBooks);
     const params = new URLSearchParams(window.location.search);
     const keyword = params.get("keyword") ?? "";
     if (keyword) {
@@ -64,10 +67,38 @@ export default function RecherchePage() {
         <h1 className="text-2xl font-bold">Moteur de recherche</h1>
         <form className="mt-4 grid gap-2 md:grid-cols-6" onSubmit={onSearchCatalog}>
           <input className={inputClass} placeholder="Mot-cle" value={search.keyword} onChange={(e) => setSearch({ ...search, keyword: e.target.value })} />
-          <input className={inputClass} placeholder="Langue" value={search.language} onChange={(e) => setSearch({ ...search, language: e.target.value })} />
-          <input className={inputClass} placeholder="Emplacement" value={search.location} onChange={(e) => setSearch({ ...search, location: e.target.value })} />
-          <input className={inputClass} placeholder="Statut" value={search.status} onChange={(e) => setSearch({ ...search, status: e.target.value })} />
-          <input className={inputClass} placeholder="Theme" value={search.theme} onChange={(e) => setSearch({ ...search, theme: e.target.value })} />
+          <SearchableSelect
+            value={search.language}
+            onChange={(value) => setSearch({ ...search, language: value })}
+            placeholder="Langue"
+            searchPlaceholder="Rechercher une langue..."
+            emptyOptionLabel="Toutes les langues"
+            options={uniqueOptions(books, (b) => b.language)}
+          />
+          <SearchableSelect
+            value={search.location}
+            onChange={(value) => setSearch({ ...search, location: value })}
+            placeholder="Emplacement"
+            searchPlaceholder="Rechercher un emplacement..."
+            emptyOptionLabel="Tous les emplacements"
+            options={uniqueOptions(books, (b) => b.location)}
+          />
+          <SearchableSelect
+            value={search.status}
+            onChange={(value) => setSearch({ ...search, status: value })}
+            placeholder="Statut"
+            searchPlaceholder="Rechercher un statut..."
+            emptyOptionLabel="Tous les statuts"
+            options={uniqueOptions(books, (b) => b.status)}
+          />
+          <SearchableSelect
+            value={search.theme}
+            onChange={(value) => setSearch({ ...search, theme: value })}
+            placeholder="Theme"
+            searchPlaceholder="Rechercher un theme..."
+            emptyOptionLabel="Tous les themes"
+            options={uniqueOptions(books, (b) => b.theme)}
+          />
           <Button type="submit">Rechercher</Button>
         </form>
       </section>
@@ -80,4 +111,15 @@ export default function RecherchePage() {
       </section>
     </main>
   );
+}
+
+function uniqueOptions<T>(items: T[], pick: (item: T) => string | null | undefined) {
+  const set = new Set<string>();
+  items.forEach((item) => {
+    const value = pick(item)?.trim();
+    if (value) set.add(value);
+  });
+  return Array.from(set)
+    .sort((a, b) => a.localeCompare(b, "fr"))
+    .map((value) => ({ value, label: value }));
 }
