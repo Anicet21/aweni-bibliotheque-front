@@ -3,9 +3,19 @@
 import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { SearchableSelect } from "@/components/searchable-select";
 import { api, type Book, type Borrower, type Loan, getJson } from "@/lib/api";
 import { inputClass, panelClass } from "@/lib/ui";
+
+const LOAN_STATUS_EMPTY = "__loan_status_empty__";
+const LOAN_STATUS_PRESETS = ["En cours", "En retard", "Retourné", "Emprunté"] as const;
 
 export default function EmpruntsPage() {
   const [items, setItems] = useState<Loan[]>([]);
@@ -164,13 +174,28 @@ export default function EmpruntsPage() {
             <label htmlFor="loan-status" className="text-xs font-medium text-slate-600">
               Statut
             </label>
-            <input
-              id="loan-status"
-              className={`${inputClass} w-full min-w-0`}
-              placeholder="En cours / En retard / Retourne..."
-              value={form.status}
-              onChange={(e) => setForm({ ...form, status: e.target.value })}
-            />
+            <Select
+              value={form.status === "" ? LOAN_STATUS_EMPTY : form.status}
+              onValueChange={(v) =>
+                setForm({ ...form, status: v === LOAN_STATUS_EMPTY ? "" : v })
+              }
+            >
+              <SelectTrigger id="loan-status" className="w-full min-w-0 font-normal">
+                <SelectValue placeholder="Choisir un statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={LOAN_STATUS_EMPTY}>Non indique</SelectItem>
+                {LOAN_STATUS_PRESETS.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+                {form.status &&
+                !(LOAN_STATUS_PRESETS as readonly string[]).includes(form.status) ? (
+                  <SelectItem value={form.status}>{form.status}</SelectItem>
+                ) : null}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex min-w-0 flex-col gap-1">
             <label htmlFor="loan-notes" className="text-xs font-medium text-slate-600">
