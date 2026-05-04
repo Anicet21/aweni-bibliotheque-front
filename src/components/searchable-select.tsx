@@ -40,9 +40,11 @@ export function SearchableSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between font-normal"
+          className="w-full justify-between overflow-hidden font-normal"
         >
-          {currentLabel ?? placeholder}
+          <span className="min-w-0 flex-1 truncate text-left">
+            {currentLabel ?? placeholder}
+          </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -61,7 +63,7 @@ export function SearchableSelect({
                   }}
                 >
                   <Check className={cn("mr-2 h-4 w-4", value === "" ? "opacity-100" : "opacity-0")} />
-                  {emptyOptionLabel}
+                  <span className="truncate">{emptyOptionLabel}</span>
                 </CommandItem>
               ) : null}
               {options.map((option) => (
@@ -76,7 +78,7 @@ export function SearchableSelect({
                   <Check
                     className={cn("mr-2 h-4 w-4", value === option.value ? "opacity-100" : "opacity-0")}
                   />
-                  {option.label}
+                  <span className="truncate">{option.label}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
