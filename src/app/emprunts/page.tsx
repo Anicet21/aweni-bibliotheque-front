@@ -84,54 +84,114 @@ export default function EmpruntsPage() {
     <main className="mx-auto max-w-7xl space-y-6 p-6 md:p-8">
       <section className={panelClass}>
         <h1 className="text-2xl font-bold">Gestion des emprunts</h1>
-        <form className="mt-4 grid gap-2 md:grid-cols-4" onSubmit={onCreate}>
-          <div className="space-y-1">
-            <label className="text-xs text-slate-600">Livre</label>
-            <SearchableSelect
-              value={form.bookId}
-              onChange={(value) => setForm({ ...form, bookId: value })}
-              placeholder="Selectionner un livre"
-              searchPlaceholder="Rechercher un livre..."
-              options={books.map((book) => ({
-                value: book.id,
-                label: `${book.title} (${book.id})`,
-              }))}
+        <form
+          className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          onSubmit={onCreate}
+        >
+          <div className="flex min-w-0 flex-col gap-1">
+            <label htmlFor="loan-book" className="text-xs font-medium text-slate-600">
+              Livre
+            </label>
+            <div className="min-w-0">
+              <SearchableSelect
+                id="loan-book"
+                value={form.bookId}
+                onChange={(value) => setForm({ ...form, bookId: value })}
+                placeholder="Selectionner un livre"
+                searchPlaceholder="Rechercher un livre..."
+                options={books.map((book) => ({
+                  value: book.id,
+                  label: `${book.title} (${book.id})`,
+                }))}
+              />
+            </div>
+          </div>
+          <div className="flex min-w-0 flex-col gap-1">
+            <label htmlFor="loan-borrower" className="text-xs font-medium text-slate-600">
+              Emprunteur
+            </label>
+            <div className="min-w-0">
+              <SearchableSelect
+                id="loan-borrower"
+                value={form.borrowerId}
+                onChange={(value) => setForm({ ...form, borrowerId: value })}
+                placeholder="Selectionner un emprunteur"
+                searchPlaceholder="Rechercher un emprunteur..."
+                options={borrowers.map((b) => ({
+                  value: b.id,
+                  label: `${b.fullName} (${b.id})`,
+                }))}
+              />
+            </div>
+          </div>
+          <div className="flex min-w-0 flex-col gap-1">
+            <label htmlFor="loan-borrowed-at" className="text-xs font-medium text-slate-600">
+              Date d&apos;emprunt
+            </label>
+            <input
+              id="loan-borrowed-at"
+              className={`${inputClass} w-full min-w-0`}
+              type="date"
+              value={form.borrowedAt}
+              onChange={(e) => setForm({ ...form, borrowedAt: e.target.value })}
             />
           </div>
-          <div className="space-y-1">
-            <label className="text-xs text-slate-600">Emprunteur</label>
-            <SearchableSelect
-              value={form.borrowerId}
-              onChange={(value) => setForm({ ...form, borrowerId: value })}
-              placeholder="Selectionner un emprunteur"
-              searchPlaceholder="Rechercher un emprunteur..."
-              options={borrowers.map((b) => ({
-                value: b.id,
-                label: `${b.fullName} (${b.id})`,
-              }))}
+          <div className="flex min-w-0 flex-col gap-1">
+            <label htmlFor="loan-due-at" className="text-xs font-medium text-slate-600">
+              Date retour prevue
+            </label>
+            <input
+              id="loan-due-at"
+              className={`${inputClass} w-full min-w-0`}
+              type="date"
+              value={form.dueAt}
+              onChange={(e) => setForm({ ...form, dueAt: e.target.value })}
             />
           </div>
-          <div className="space-y-1">
-            <label className="text-xs text-slate-600">Date d&apos;emprunt</label>
-            <input className={inputClass} type="date" value={form.borrowedAt} onChange={(e) => setForm({ ...form, borrowedAt: e.target.value })} />
+          <div className="flex min-w-0 flex-col gap-1">
+            <label htmlFor="loan-returned-at" className="text-xs font-medium text-slate-600">
+              Date retour effective
+            </label>
+            <input
+              id="loan-returned-at"
+              className={`${inputClass} w-full min-w-0`}
+              type="date"
+              value={form.returnedAt}
+              onChange={(e) => setForm({ ...form, returnedAt: e.target.value })}
+            />
           </div>
-          <div className="space-y-1">
-            <label className="text-xs text-slate-600">Date retour prevue</label>
-            <input className={inputClass} type="date" value={form.dueAt} onChange={(e) => setForm({ ...form, dueAt: e.target.value })} />
+          <div className="flex min-w-0 flex-col gap-1">
+            <label htmlFor="loan-status" className="text-xs font-medium text-slate-600">
+              Statut
+            </label>
+            <input
+              id="loan-status"
+              className={`${inputClass} w-full min-w-0`}
+              placeholder="En cours / En retard / Retourne..."
+              value={form.status}
+              onChange={(e) => setForm({ ...form, status: e.target.value })}
+            />
           </div>
-          <div className="space-y-1">
-            <label className="text-xs text-slate-600">Date retour effective</label>
-            <input className={inputClass} type="date" value={form.returnedAt} onChange={(e) => setForm({ ...form, returnedAt: e.target.value })} />
+          <div className="flex min-w-0 flex-col gap-1">
+            <label htmlFor="loan-notes" className="text-xs font-medium text-slate-600">
+              Notes
+            </label>
+            <input
+              id="loan-notes"
+              className={`${inputClass} w-full min-w-0`}
+              placeholder="Notes"
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+            />
           </div>
-          <div className="space-y-1">
-            <label className="text-xs text-slate-600">Statut</label>
-            <input className={inputClass} placeholder="En cours / En retard / Retourne..." value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} />
+          <div className="flex min-w-0 flex-col gap-1 justify-end">
+            <span className="text-xs font-medium text-transparent select-none" aria-hidden>
+              Action
+            </span>
+            <Button type="submit" className="w-full sm:w-auto" disabled={saving}>
+              {saving ? "En cours..." : "Ajouter"}
+            </Button>
           </div>
-          <div className="space-y-1">
-            <label className="text-xs text-slate-600">Notes</label>
-            <input className={inputClass} placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
-          </div>
-          <Button type="submit" disabled={saving}>{saving ? "En cours..." : "Ajouter"}</Button>
         </form>
       </section>
 

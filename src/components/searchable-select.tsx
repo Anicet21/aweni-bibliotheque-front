@@ -21,6 +21,7 @@ export function SearchableSelect({
   placeholder,
   searchPlaceholder,
   emptyOptionLabel,
+  id,
 }: {
   options: { value: string; label: string }[];
   value: string;
@@ -28,6 +29,7 @@ export function SearchableSelect({
   placeholder: string;
   searchPlaceholder: string;
   emptyOptionLabel?: string;
+  id?: string;
 }) {
   const [open, setOpen] = useState(false);
   const currentLabel = options.find((opt) => opt.value === value)?.label;
@@ -36,6 +38,7 @@ export function SearchableSelect({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          id={id}
           type="button"
           variant="outline"
           role="combobox"
