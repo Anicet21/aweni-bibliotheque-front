@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  border-color: rgb(226 232 240 / 0.75);
+}
+
+body {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+html {
+  scroll-behavior: smooth;
+}
